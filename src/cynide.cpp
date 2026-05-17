@@ -1,7 +1,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -67,10 +66,6 @@ int main(int argc, char **argv) {
   std::string inputPath = args[0];
   std::string outputBase;
 
-  if (!isCynideFile(inputPath)) {
-    std::cerr << "Error: " << inputPath << " is not a cynide file\n";
-  }
-
   for (size_t i = 1; i < args.size(); ++i) {
     if ((args[i] == "--output" || args[i] == "-o") && (i + 1) < args.size()) {
       outputBase = args[++i];
@@ -84,7 +79,33 @@ int main(int argc, char **argv) {
   if (outputBase.empty())
     outputBase = basename(inputPath);
 
-  std::cout << outputBase << "\n";
+  std::string source;
+  if (!readFile(inputPath, source)) {
+    std::cerr << "Error: " << "cannot read input file '" << inputPath << "'.\n";
+    return 1;
+  }
+  if (!isCynideFile(inputPath)) {
+    std::cerr << "Error: " << "input file '" << inputPath
+              << "' is not a cynide file.\n";
+    return 1;
+  }
+
+  /* ---- Stage 1 : Lexer ---- */
+  Lexer lexer(std::move(source));
+  std::vector<Token> tokens = lexer.tokenize();
+  if (lexer.hasError()) {
+    std::cerr << "Lexer error: " << lexer.errorMessage() << "\n";
+    return 1;
+  }
+  Lexer::dumpTokens(tokens);
+
+  /* ---- Stage 2 : Parser ---- */
+
+  /* ---- Stage 3 : Semantic Analysis ---- */
+
+  /* ---- Stage 4 : Code Generation ---- */
+
+  /* ---- Stage 5 : Object Emission + Linking ---- */
 
   return 0;
 }

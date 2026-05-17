@@ -18,6 +18,7 @@ enum class TokenType {
   KW_RETURN,
 
   KW_PRINT,
+  KW_LET,
 
   KW_TRUE,
   KW_FALSE,
@@ -47,6 +48,8 @@ enum class TokenType {
 
   // Literals
   LIT_STRING,
+  LIT_INT,
+  LIT_FLOAT,
 
   // Punctuation
   LPAREN,
@@ -54,6 +57,7 @@ enum class TokenType {
   COLON,
   COMMA,
   ARROW,
+  ASSIGN,
 
   // Structure
   INDENT,

@@ -25,6 +25,8 @@ std::string tokenTypeToString(TokenType type) {
 
   case TokenType::KW_PRINT:
     return "KW_PRINT";
+  case TokenType::KW_LET:
+    return "KW_LET";
 
   case TokenType::KW_TRUE:
     return "KW_TRUE";
@@ -76,6 +78,10 @@ std::string tokenTypeToString(TokenType type) {
   // Literals
   case TokenType::LIT_STRING:
     return "LIT_STRING";
+  case TokenType::LIT_INT:
+    return "LIT_INT";
+  case TokenType::LIT_FLOAT:
+    return "LIT_FLOAT";
 
   // Punctuation
   case TokenType::LPAREN:
@@ -88,6 +94,8 @@ std::string tokenTypeToString(TokenType type) {
     return "COMMA";
   case TokenType::ARROW:
     return "ARROW";
+  case TokenType::ASSIGN:
+    return "ASSIGN";
 
   // Structure
   case TokenType::INDENT:

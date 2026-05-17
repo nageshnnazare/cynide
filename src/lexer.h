@@ -10,9 +10,10 @@
     CYNIDE LEXER with indentation handling logic.
 
     Indentation algorithm:
-    - Maintina a stack of indentation widths (columns); start with {0};
-    - Blank lines and lines that contain only spaces/ tabs and/or #-comment are
+    - Maintain a stack of indentation widths (columns); start with {0};
+    - Blank lines and lines that contain only spaces and/or #-comment are
       skipped entirely - they never change the indentation stack;
+    - TODO: Tab indentation is not supported yet.
     - At the beginning og each non-skipped lines, count only the leading space
    chars (tabs are rejected);
     - Let `cur` be that count and `top` = stack.back();
@@ -26,12 +27,16 @@
 
 class Lexer {
 public:
-  explicit Lexer(std::string source);
+  explicit Lexer(std::string source) : _source(std::move(source)) {};
+  ~Lexer() = default;
 
   std::vector<Token> tokenize();
-  bool has_error() const { return _error; };
-  std::string error_message() const { return _error_message; };
-  ~Lexer();
+  void tokenizeRestOfLine(std::vector<Token> &out);
+
+  bool hasError() const { return _error; };
+  std::string errorMessage() const { return _errorMessage; };
+
+  static void dumpTokens(const std::vector<Token> &tokens);
 
 private:
   std::string _source;
@@ -39,7 +44,21 @@ private:
   int _line = 1;
   int _column = 1;
   bool _error = false;
-  std::string _error_message;
+  std::string _errorMessage;
+
+  char peek(size_t ahead = 0) const;
+  char advanceChar();
+  void reportError(const std::string &msg);
+
+  // Skip only comment line
+  void skipCommentLine();
+
+  // Skip blank lines and line with #-comments
+  bool skipBlankAndCommentLine();
+
+  Token makeToken(TokenType type, std::string value, int line, int col);
+
+  static TokenType keywordType(const std::string &text);
 };
 
 #endif // CYNIDE_LEXER_H
