@@ -9,11 +9,22 @@
 #include <lexer.h>
 
 static void printUsage(const char *prog) {
-  std::cerr << "Usage: " << prog
-            << " <input.cy> [options]\n"
-               "\n"
-               "  -o, --output <name>   Output name (default: input basename)\n"
-               "  -h, --help            Show this message.\n";
+  std::cerr
+      << "Usage: " << prog
+      << " <input.cy> [options]\n"
+         "\n"
+         "Compilation options:\n"
+         "  -o, --output <name>   Output name (default: input basename)\n"
+
+         "\n"
+         "Debug options:\n"
+         "  --emit-ir             Print llvm IR & write it out to .ll file\n"
+         "  --emit-tokens         Print out the tokens from the lexer\n"
+         "  --emit-ast            Print out the AST from the parser\n"
+         "  --emit-sema           Print type-annotated report from "
+         "semantic analysis\n"
+         "\n"
+         "  -h, --help            Show this message\n";
 }
 
 static bool readFile(const std::string &path, std::string &out) {
@@ -65,10 +76,22 @@ int main(int argc, char **argv) {
 
   std::string inputPath = args[0];
   std::string outputBase;
+  bool emitIR = false;
+  bool emitTokens = false;
+  bool emitAST = false;
+  bool emitSema = false;
 
   for (size_t i = 1; i < args.size(); ++i) {
     if ((args[i] == "--output" || args[i] == "-o") && (i + 1) < args.size()) {
       outputBase = args[++i];
+    } else if (args[i] == "--emit-ir") {
+      emitIR = true;
+    } else if (args[i] == "--emit-tokens") {
+      emitTokens = true;
+    } else if (args[i] == "--emit-ast") {
+      emitAST = true;
+    } else if (args[i] == "--emit-sema") {
+      emitSema = true;
     } else {
       std::cerr << "Unknown argument: " << args[i] << "\n";
       printUsage(argv[0]);
@@ -97,7 +120,9 @@ int main(int argc, char **argv) {
     std::cerr << "Lexer error: " << lexer.errorMessage() << "\n";
     return 1;
   }
-  Lexer::dumpTokens(tokens);
+  if (emitTokens) {
+    Lexer::dumpTokens(tokens);
+  }
 
   /* ---- Stage 2 : Parser ---- */
 
