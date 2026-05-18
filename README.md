@@ -1,6 +1,6 @@
 # Cynide
 
-Cynide (.cy) is a AoT - programming language compiler being developed in C++ using LLVM as its backend.
+Cynide (.cy) is a AoT - programming language compiler being developed in C++ using LLVM as its backend. `cylang` is the compiler for cynide.
 
 ## Prerequisites
 
@@ -16,7 +16,7 @@ Cynide uses CMake as its build system. You can build it using the following step
 mkdir build
 cd build
 cmake ..
-make
+make cylang
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ make
 Run the compiled executable with a `.cy` source file:
 
 ```bash
-./cynide <input.cy> [options]
+cylang <input.cy> [options]
 ```
 
 ## License
