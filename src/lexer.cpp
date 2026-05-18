@@ -11,8 +11,8 @@
 
 void Lexer::dumpTokens(const std::vector<Token> &tokens) {
   std::cout << std::left << std::setw(6) << "LINE" << std::setw(6) << "COL"
-            << std::setw(16) << "TYPE"
-            << "VALUE\n";
+            << std::setw(16) << "TOK TYPE"
+            << "TOK VALUE\n";
   std::cout << std::string(50, '-') << "\n";
 
   for (const auto &tok : tokens) {
@@ -25,9 +25,9 @@ void Lexer::dumpTokens(const std::vector<Token> &tokens) {
     else if (tok.type == TokenType::NEWLINE)
       std::cout << "\\n";
     else if (tok.type == TokenType::INDENT)
-      std::cout << " >>";
+      std::cout << ">>";
     else if (tok.type == TokenType::DEDENT)
-      std::cout << " <<";
+      std::cout << "<<";
     else if (tok.type == TokenType::EOF_TOKEN)
       std::cout << "<eof>";
     else
@@ -326,8 +326,13 @@ void Lexer::tokenizeRestOfLine(std::vector<Token> &out) {
       continue;
     }
 
-    reportError(std::to_string(tokLine) + ":" + std::to_string(tokCol) +
-                std::string(" Unexpected character '") + c + "'.");
+    if (c == '\0') {
+      reportError(std::to_string(tokLine) + ":" + std::to_string(tokCol) +
+                  std::string(" Expected new line at the end of the file."));
+    } else {
+      reportError(std::to_string(tokLine) + ":" + std::to_string(tokCol) +
+                  std::string(" Unexpected character '") + c + "'.");
+    }
     return;
   }
 }
@@ -415,11 +420,12 @@ TokenType Lexer::keywordType(const std::string &text) {
       {"else", TokenType::KW_ELSE},     {"while", TokenType::KW_WHILE},
       {"for", TokenType::KW_FOR},       {"fn", TokenType::KW_FN},
       {"return", TokenType::KW_RETURN}, {"print", TokenType::KW_PRINT},
-      {"true", TokenType::KW_TRUE},     {"false", TokenType::KW_FALSE},
-      {"and", TokenType::KW_AND},       {"or", TokenType::KW_OR},
-      {"not", TokenType::KW_NOT},       {"int", TokenType::KW_INT},
-      {"float", TokenType::KW_FLOAT},   {"bool", TokenType::KW_BOOL},
-      {"string", TokenType::KW_STRING}, {"void", TokenType::KW_VOID},
+      {"let", TokenType::KW_LET},       {"true", TokenType::KW_TRUE},
+      {"false", TokenType::KW_FALSE},   {"and", TokenType::KW_AND},
+      {"or", TokenType::KW_OR},         {"not", TokenType::KW_NOT},
+      {"int", TokenType::KW_INT},       {"float", TokenType::KW_FLOAT},
+      {"bool", TokenType::KW_BOOL},     {"string", TokenType::KW_STRING},
+      {"void", TokenType::KW_VOID},
   };
   auto it = kw.find(text);
   if (it == kw.end())
