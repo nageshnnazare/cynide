@@ -1,0 +1,4 @@
+#ifndef CYNIDE_PARSER_H
+#define CYNIDE_PARSER_H
+
+#endif // CYNIDE_PARSER_H

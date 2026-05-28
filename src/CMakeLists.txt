@@ -3,6 +3,7 @@ llvm_map_components_to_libnames(LLVM_LIBS core support native)
 add_executable(cylang
       token.cpp
       lexer.cpp
+      parser.cpp
       cylang.cpp
 )
 

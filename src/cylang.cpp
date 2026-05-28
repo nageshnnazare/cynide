@@ -64,14 +64,14 @@ static bool isCynideFile(const std::string &path) {
 int main(int argc, char **argv) {
   std::vector<std::string> args(argv + 1, argv + argc);
 
-  if (!args.empty() && (args[0] == "-h" || args[0] == "--help")) {
-    printUsage(argv[0]);
-    return 0;
-  }
-
   if (args.empty()) {
     printUsage(argv[0]);
     return 1;
+  }
+
+  if (args[0] == "-h" || args[0] == "--help") {
+    printUsage(argv[0]);
+    return 0;
   }
 
   std::string inputPath = args[0];

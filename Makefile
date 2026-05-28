@@ -8,4 +8,4 @@ format: ${SOURCES} ${HEADERS}
 	$(FORMAT) $(HEADERS) $(SOURCES)
 
 build: ${SOURCES} ${HEADERS}
-	cd build && cmake .. && make && cd ..
+	cd build && cmake .. && make cylang && cd ..
