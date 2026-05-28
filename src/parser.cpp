@@ -57,10 +57,12 @@ std::unique_ptr<StmtNode> Parser::parseStatement() {
 }
 
 std::unique_ptr<VariableDecl> Parser::parseVariableDecl() {
+  // Syntax: let <name> [: <type>] = <expr>
   Token name =
       consume(TokenType::IDENTIFIER, "Expected variable name after 'let'.");
 
   std::string typeAnn;
+  // Check for optional type annotation (e.g. ": int")
   if (match(TokenType::COLON))
     typeAnn = parseTypeAnnotation();
 
@@ -71,11 +73,13 @@ std::unique_ptr<VariableDecl> Parser::parseVariableDecl() {
 }
 
 std::unique_ptr<FunctionDef> Parser::parseFunctionDef() {
+  // Syntax: fn <name>([param: type, ...]) -> <retType>: <body>
   Token name =
       consume(TokenType::IDENTIFIER, "Expected function name after 'fn'.");
   consume(TokenType::LPAREN, "Expected '(' after function name.");
 
   std::vector<FunctionDef::Param> params;
+  // Parse parameter list until the closing parenthesis
   while (!check(TokenType::RPAREN)) {
     do {
       Token pname = consume(TokenType::IDENTIFIER, "Expected parameter name");
