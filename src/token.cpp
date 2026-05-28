@@ -17,6 +17,10 @@ std::string tokenTypeToString(TokenType type) {
     return "KW_WHILE";
   case TokenType::KW_FOR:
     return "KW_FOR";
+  case TokenType::KW_IN:
+    return "KW_IN";
+  case TokenType::KW_RANGE:
+    return "KW_RANGE";
 
   case TokenType::KW_FN:
     return "KW_FN";

@@ -3,6 +3,14 @@
 
 #include <string>
 
+/**
+ * @brief Enum representing all valid token categories in Cynide language.
+ *
+ * This includes identifiers, keywords (control flow, functions, types,
+ * literals), operators (arithmetic, comparison, logical), literal constants,
+ * punctuation, and structural markers like indentation change or file
+ * terminator.
+ */
 enum class TokenType {
   IDENTIFIER,
 
@@ -13,6 +21,8 @@ enum class TokenType {
 
   KW_WHILE,
   KW_FOR,
+  KW_IN,
+  KW_RANGE,
 
   KW_FN,
   KW_RETURN,
@@ -68,6 +78,12 @@ enum class TokenType {
   UNKNOWN,
 };
 
+/**
+ * @brief Represents a lexical token parsed from the source code.
+ *
+ * Contains the token class, the raw string lexeme/value extracted,
+ * and the exact line and column coordinates in the source file.
+ */
 struct Token {
   TokenType type = TokenType::UNKNOWN;
   std::string value;
@@ -75,6 +91,12 @@ struct Token {
   int column = 1;
 };
 
+/**
+ * @brief Converts a TokenType enum value to its corresponding string
+ * representation.
+ * @param type The TokenType value to convert.
+ * @return A string description of the token type (e.g. "IDENTIFIER", "KW_IF").
+ */
 std::string tokenTypeToString(TokenType type);
 
 #endif // CYNIDE_TOKEN_H

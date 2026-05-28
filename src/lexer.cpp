@@ -418,7 +418,8 @@ TokenType Lexer::keywordType(const std::string &text) {
   static const std::unordered_map<std::string, TokenType> kw = {
       {"if", TokenType::KW_IF},         {"elif", TokenType::KW_ELIF},
       {"else", TokenType::KW_ELSE},     {"while", TokenType::KW_WHILE},
-      {"for", TokenType::KW_FOR},       {"fn", TokenType::KW_FN},
+      {"for", TokenType::KW_FOR},       {"in", TokenType::KW_IN},
+      {"range", TokenType::KW_RANGE},   {"fn", TokenType::KW_FN},
       {"return", TokenType::KW_RETURN}, {"print", TokenType::KW_PRINT},
       {"let", TokenType::KW_LET},       {"true", TokenType::KW_TRUE},
       {"false", TokenType::KW_FALSE},   {"and", TokenType::KW_AND},

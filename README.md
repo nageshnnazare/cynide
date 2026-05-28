@@ -1,6 +1,15 @@
 # Cynide
 
-Cynide (.cy) is a AoT - programming language compiler being developed in C++ using LLVM as its backend. `cylang` is the compiler for cynide.
+
+Cynide (.cy) is an AoT programming language compiler being developed in C++ using LLVM as its backend. `cylang` is the compiler for Cynide.
+
+## Documentation
+
+The API reference and class documentation are automatically generated using Doxygen and hosted via GitHub Pages.
+
+👉 **[View Doxygen API Documentation](https://nageshnnazare.github.io/cynide/)**
+
+[![Documentation Status](https://github.com/nageshnnazare/cynide/actions/workflows/doxygen.yml/badge.svg)](https://github.com/nageshnnazare/cynide/actions/workflows/doxygen.yml)
 
 ## Prerequisites
 

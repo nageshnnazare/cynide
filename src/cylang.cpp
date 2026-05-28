@@ -7,7 +7,12 @@
 #include <vector>
 
 #include <lexer.h>
+#include <parser.h>
 
+/**
+ * @brief Prints the command-line usage information for the Cynide compiler.
+ * @param prog The executable name/path (usually argv[0]).
+ */
 static void printUsage(const char *prog) {
   std::cerr
       << "Usage: " << prog
@@ -15,18 +20,23 @@ static void printUsage(const char *prog) {
          "\n"
          "Compilation options:\n"
          "  -o, --output <name>   Output name (default: input basename)\n"
-
          "\n"
          "Debug options:\n"
-         "  --emit-ir             Print llvm IR & write it out to .ll file\n"
          "  --emit-tokens         Print out the tokens from the lexer\n"
          "  --emit-ast            Print out the AST from the parser\n"
-         "  --emit-sema           Print type-annotated report from "
-         "semantic analysis\n"
+         "  --emit-sema           Print type-annotated report from semantic "
+         "analysis\n"
+         "  --emit-ir             Print llvm IR & write it out to .ll file\n"
          "\n"
          "  -h, --help            Show this message\n";
 }
 
+/**
+ * @brief Reads the entire contents of a file into a string.
+ * @param path The path to the file to read.
+ * @param out Output string to store the file contents.
+ * @return true if the file was successfully read, false otherwise.
+ */
 static bool readFile(const std::string &path, std::string &out) {
   std::ifstream in(path);
   if (!in)
@@ -38,6 +48,12 @@ static bool readFile(const std::string &path, std::string &out) {
   return true;
 }
 
+/**
+ * @brief Extracts the base name of a file path, removing parent directories and
+ * extensions.
+ * @param path The file path to parse.
+ * @return The base name of the file (e.g., "/path/to/file.cy" -> "file").
+ */
 static std::string basename(const std::string &path) {
   size_t slash = path.find_last_of("/\\");
   std::string name =
@@ -48,6 +64,11 @@ static std::string basename(const std::string &path) {
   return name.empty() ? ("out") : (name);
 }
 
+/**
+ * @brief Validates if the file path has the Cynide source extension (.cy).
+ * @param path The file path to inspect.
+ * @return true if the file extension is ".cy", false otherwise.
+ */
 static bool isCynideFile(const std::string &path) {
   size_t slash = path.find_last_of("/\\");
   std::string name =
@@ -125,6 +146,15 @@ int main(int argc, char **argv) {
   }
 
   /* ---- Stage 2 : Parser ---- */
+  Parser parser(std::move(tokens));
+  auto program = parser.parseProgram();
+  if (parser.hasError()) {
+    std::cerr << "Parser error: " << parser.errorMessage() << "\n";
+    return 1;
+  }
+  if (emitAST) {
+    Parser::dumpAst(program);
+  }
 
   /* ---- Stage 3 : Semantic Analysis ---- */
 

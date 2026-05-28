@@ -1,0 +1,30 @@
+# Doxyfile for Cynide compiler
+
+# Project Metadata
+PROJECT_NAME           = "Cynide"
+PROJECT_NUMBER         = "0.1.0"
+PROJECT_BRIEF          = "An Ahead-of-Time compiler for the Cynide programming language"
+
+# Input Configuration
+INPUT                  = README.md src docs/language_design.md
+USE_MDFILE_AS_MAINPAGE = README.md
+RECURSIVE              = YES
+FILE_PATTERNS          = *.cpp *.h *.md
+
+# Output Configuration
+OUTPUT_DIRECTORY       = docs/doxygen
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+
+# Extraction Settings
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+
+# UI Styling and Features
+HTML_COLORSTYLE_HUE    = 220
+HTML_COLORSTYLE_SAT    = 100
+HTML_COLORSTYLE_LIGHT  = 90
+GENERATE_TREEVIEW      = YES
+SOURCE_BROWSER         = YES
