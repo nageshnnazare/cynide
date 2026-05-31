@@ -1,3 +1,8 @@
+/**
+ * @file lexer.cpp
+ * @brief Lexical analysis: tokens, keywords, literals, and INDENT/DEDENT.
+ */
+
 #include <cctype>
 #include <cstddef>
 #include <iomanip>

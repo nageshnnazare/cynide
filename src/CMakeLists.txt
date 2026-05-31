@@ -4,6 +4,7 @@ add_executable(cylang
       token.cpp
       lexer.cpp
       parser.cpp
+      sema.cpp
       cylang.cpp
 )
 

@@ -1,3 +1,8 @@
+/**
+ * @file token.cpp
+ * @brief TokenType stringification for debugging and error messages.
+ */
+
 #include <token.h>
 
 std::string tokenTypeToString(TokenType type) {

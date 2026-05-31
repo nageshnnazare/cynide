@@ -1,3 +1,8 @@
+/**
+ * @file parser.cpp
+ * @brief Recursive-descent parser implementation for the Cynide grammar.
+ */
+
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>

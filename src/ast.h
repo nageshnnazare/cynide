@@ -513,17 +513,19 @@ public:
 
 /**
  * @class ForStmt
- * @brief Represents a for loop statement over a range.
+ * @brief Represents a for loop over `range(...)`.
  *
- * Example: `for i in start..end`.
+ * Examples:
+ *   - `for i in range(10):`  — startExpr is 10, endExpr is null (start 0).
+ *   - `for i in range(3, 10):` — startExpr is 3, endExpr is 10.
  */
 class ForStmt : public StmtNode {
 public:
   /**
    * @brief Constructs a ForStmt.
    * @param var The loop iterator variable name.
-   * @param startEx The starting bound expression of the range.
-   * @param endEx The ending bound expression of the range.
+   * @param startEx Lower bound, or sole argument for `range(n)`.
+   * @param endEx Upper bound; null for single-argument `range(n)`.
    * @param body The loop body block.
    */
   ForStmt(std::string var, std::unique_ptr<ExprNode> startEx,

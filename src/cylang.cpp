@@ -1,3 +1,8 @@
+/**
+ * @file cylang.cpp
+ * @brief Compiler driver and CLI entry point.
+ */
+
 #include <cstddef>
 #include <cstdlib>
 #include <fstream>
@@ -8,6 +13,7 @@
 
 #include <lexer.h>
 #include <parser.h>
+#include <sema.h>
 
 /**
  * @brief Prints the command-line usage information for the Cynide compiler.
@@ -82,6 +88,9 @@ static bool isCynideFile(const std::string &path) {
   return false;
 }
 
+/**
+ * @brief Cynide compiler driver: lex, parse, sema, and codegen.
+ */
 int main(int argc, char **argv) {
   std::vector<std::string> args(argv + 1, argv + argc);
 
@@ -157,6 +166,15 @@ int main(int argc, char **argv) {
   }
 
   /* ---- Stage 3 : Semantic Analysis ---- */
+  Sema sema;
+  sema.analyze(*program);
+  if (sema.hasError()) {
+    std::cerr << "Semantic Analysis error: " << sema.errorMessage() << "\n";
+    return 1;
+  }
+  if (emitSema) {
+    sema.dumpSema();
+  }
 
   /* ---- Stage 4 : Code Generation ---- */
 
