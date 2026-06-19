@@ -146,10 +146,19 @@ std::unique_ptr<ForStmt> Parser::parseForStmt() {
   consume(TokenType::KW_RANGE, "Expected 'range' after 'in'.");
   consume(TokenType::LPAREN, "Expected '(' after 'range'.");
 
-  std::unique_ptr<ExprNode> start = parseExpr();
+  std::unique_ptr<ExprNode> first = parseExpr();
+  std::unique_ptr<ExprNode> start;
   std::unique_ptr<ExprNode> end;
-  if (match(TokenType::COMMA))
+  
+  if (match(TokenType::COMMA)) {
+    // Two-argument form: range(start, end)
+    start = std::move(first);
     end = parseExpr();
+  } else {
+    // Single-argument form: range(n) is treated as range(0, n)
+    start = std::make_unique<IntLiteral>(0);
+    end = std::move(first);
+  }
 
   consume(TokenType::RPAREN, "Expected ')' after range args.");
   consume(TokenType::COLON, "Expected ':' after for-loop header.");

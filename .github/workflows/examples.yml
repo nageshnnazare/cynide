@@ -17,8 +17,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake clang lld
-          # LLVM/Clang dev packages vary by distribution; attempt best-effort
-          sudo apt-get install -y libclang-dev llvm-dev || true
+          # Install LLVM dev packages
+          sudo apt-get install -y llvm-dev libllvm-dev clang-tools
 
       - name: Configure CMake
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
