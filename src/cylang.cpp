@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include <codegen.h>
 #include <lexer.h>
 #include <parser.h>
 #include <sema.h>
@@ -177,8 +178,37 @@ int main(int argc, char **argv) {
   }
 
   /* ---- Stage 4 : Code Generation ---- */
+  Codegen codegen;
+  codegen.generate(*program);
+  if (codegen.hasError()) {
+    std::cerr << "Code Generation error: " << codegen.errorMessage() << "\n";
+    return 1;
+  }
+  std::string llPath = outputBase + ".ll";
+  if (emitIR) {
+    codegen.dumpIR();
+    codegen.writeIR(llPath);
+  }
 
   /* ---- Stage 5 : Object Emission + Linking ---- */
+  std::string oPath = outputBase + ".o";
+  codegen.compileToObject(oPath);
+  if (codegen.hasError()) {
+    std::cerr << "CodeGen error: " << codegen.errorMessage() << "\n";
+    return 1;
+  }
+
+  std::string exePath = outputBase;
+  std::string linkCmd =
+      std::string("clang ") + oPath + " -o " + exePath + " 2>&1";
+  int rc = std::system(linkCmd.c_str());
+  if (rc != 0) {
+    std::cerr << "Linker failed (clang exit code " << rc << ").\n";
+    std::cerr << "Command: " << linkCmd << "\n";
+    return 1;
+  }
+
+  std::cout << "Built executable: " << exePath << "\n";
 
   return 0;
 }

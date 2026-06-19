@@ -5,6 +5,7 @@ add_executable(cylang
       lexer.cpp
       parser.cpp
       sema.cpp
+      codegen.cpp
       cylang.cpp
 )
 
