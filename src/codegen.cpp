@@ -852,11 +852,11 @@ void Codegen::compileToObject(const std::string &filename) {
   std::string triple = llvm::sys::getDefaultTargetTriple();
   llvm::Triple tripleObj(triple);
 
-  _module->setTargetTriple(tripleObj);
+  _module->setTargetTriple(triple);
 
   std::string err;
   const llvm::Target *targetObj =
-      llvm::TargetRegistry::lookupTarget(tripleObj, err);
+      llvm::TargetRegistry::lookupTarget(triple, err);
   if (!targetObj) {
     reportError("Could not lookup target: " + err);
     return;
@@ -865,7 +865,7 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::TargetOptions opt;
   llvm::Reloc::Model RM = llvm::Reloc::PIC_;
   llvm::CodeModel::Model CM = llvm::CodeModel::Small;
-  llvm::CodeGenOptLevel OL = llvm::CodeGenOptLevel::Default;
+  llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default;
 
   llvm::TargetMachine *TM = targetObj->createTargetMachine(
       tripleObj, "generic", "", opt, std::optional<llvm::Reloc::Model>(RM),
@@ -886,7 +886,7 @@ void Codegen::compileToObject(const std::string &filename) {
   }
 
   llvm::legacy::PassManager pm;
-  llvm::CodeGenFileType ft = llvm::CodeGenFileType::ObjectFile;
+  llvm::CodeGenFileType ft = llvm::CGFT_ObjectFile;
 
   if (TM->addPassesToEmitFile(pm, dest, nullptr, ft)) {
     reportError("TargetMachine cannot emit object files.");
