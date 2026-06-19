@@ -868,7 +868,8 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default;
 
   llvm::TargetMachine *TM = targetObj->createTargetMachine(
-      tripleObj, "generic", "", opt, std::optional<llvm::Reloc::Model>(RM),
+      tripleObj.getTriple(), "generic", "", opt,
+      std::optional<llvm::Reloc::Model>(RM),
       std::optional<llvm::CodeModel::Model>(CM), OL);
 
   if (!TM) {
