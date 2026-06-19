@@ -580,8 +580,13 @@ void Codegen::generateIfStatement(IfElseStmt *node) {
     _builder.SetInsertPoint(elifElse);
   }
 
+  // If there is an else body, generate it in the current insertion point
   if (node->elseBody) {
     generateBlock(node->elseBody.get());
+    if (!_builder.GetInsertBlock()->getTerminator())
+      _builder.CreateBr(mergeBB);
+  } else {
+    // No else body: ensure the current fall-through block has a terminator
     if (!_builder.GetInsertBlock()->getTerminator())
       _builder.CreateBr(mergeBB);
   }
@@ -849,26 +854,26 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
 
-    std::string triple = llvm::sys::getDefaultTargetTriple();
-    llvm::Triple tripleObj(triple);
+  std::string triple = llvm::sys::getDefaultTargetTriple();
+  llvm::Triple tripleObj(triple);
 
-  #if !defined(LLVM_VERSION_MAJOR)
-  #include "llvm/Config/llvm-config.h"
-  #endif
+#if !defined(LLVM_VERSION_MAJOR)
+#include "llvm/Config/llvm-config.h"
+#endif
 
-  #if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
-    _module->setTargetTriple(tripleObj);
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+  _module->setTargetTriple(tripleObj);
 
-    std::string err;
-    const llvm::Target *targetObj =
-        llvm::TargetRegistry::lookupTarget(tripleObj, err);
-  #else
-    _module->setTargetTriple(triple);
+  std::string err;
+  const llvm::Target *targetObj =
+      llvm::TargetRegistry::lookupTarget(tripleObj, err);
+#else
+  _module->setTargetTriple(triple);
 
-    std::string err;
-    const llvm::Target *targetObj =
-        llvm::TargetRegistry::lookupTarget(triple, err);
-  #endif
+  std::string err;
+  const llvm::Target *targetObj =
+      llvm::TargetRegistry::lookupTarget(triple, err);
+#endif
   if (!targetObj) {
     reportError("Could not lookup target: " + err);
     return;
@@ -883,17 +888,15 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default;
 #endif
 
-  #if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
-    llvm::TargetMachine *TM = targetObj->createTargetMachine(
-        tripleObj, "generic", "", opt,
-        std::optional<llvm::Reloc::Model>(RM),
-        std::optional<llvm::CodeModel::Model>(CM), OL);
-  #else
-    llvm::TargetMachine *TM = targetObj->createTargetMachine(
-        triple, "generic", "", opt,
-        std::optional<llvm::Reloc::Model>(RM),
-        std::optional<llvm::CodeModel::Model>(CM), OL);
-  #endif
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+  llvm::TargetMachine *TM = targetObj->createTargetMachine(
+      tripleObj, "generic", "", opt, std::optional<llvm::Reloc::Model>(RM),
+      std::optional<llvm::CodeModel::Model>(CM), OL);
+#else
+  llvm::TargetMachine *TM = targetObj->createTargetMachine(
+      triple, "generic", "", opt, std::optional<llvm::Reloc::Model>(RM),
+      std::optional<llvm::CodeModel::Model>(CM), OL);
+#endif
 
   if (!TM) {
     reportError("Could not create target machine.");
@@ -919,6 +922,12 @@ void Codegen::compileToObject(const std::string &filename) {
   if (TM->addPassesToEmitFile(pm, dest, nullptr, llvm::CGFT_ObjectFile)) {
 #endif
     reportError("TargetMachine cannot emit object files.");
+    return;
+  }
+
+  // Verify module before emitting
+  if (llvm::verifyModule(*_module, &llvm::errs())) {
+    reportError("Module verification failed before emission.");
     return;
   }
 

@@ -1,0 +1,41 @@
+name: Build and run examples
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-run-examples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake clang lld
+          # LLVM/Clang dev packages vary by distribution; attempt best-effort
+          sudo apt-get install -y libclang-dev llvm-dev || true
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -- -j$(nproc)
+
+      - name: Compile and run examples
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -euo pipefail
+          echo "Found examples:"
+          ls -1 examples/*.cy
+          for src in examples/*.cy; do
+            echo "\n=== Compiling $src ==="
+            ./build/src/cylang "$src"
+            exe="$(basename "$src" .cy)"
+            echo "=== Running $exe ==="
+            ./"$exe"
+          done
