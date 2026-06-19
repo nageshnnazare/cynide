@@ -849,14 +849,26 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
 
-  std::string triple = llvm::sys::getDefaultTargetTriple();
-  llvm::Triple tripleObj(triple);
+    std::string triple = llvm::sys::getDefaultTargetTriple();
+    llvm::Triple tripleObj(triple);
 
-  _module->setTargetTriple(triple);
+  #if !defined(LLVM_VERSION_MAJOR)
+  #include "llvm/Config/llvm-config.h"
+  #endif
 
-  std::string err;
-  const llvm::Target *targetObj =
-      llvm::TargetRegistry::lookupTarget(triple, err);
+  #if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+    _module->setTargetTriple(tripleObj);
+
+    std::string err;
+    const llvm::Target *targetObj =
+        llvm::TargetRegistry::lookupTarget(tripleObj, err);
+  #else
+    _module->setTargetTriple(triple);
+
+    std::string err;
+    const llvm::Target *targetObj =
+        llvm::TargetRegistry::lookupTarget(triple, err);
+  #endif
   if (!targetObj) {
     reportError("Could not lookup target: " + err);
     return;
@@ -865,12 +877,23 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::TargetOptions opt;
   llvm::Reloc::Model RM = llvm::Reloc::PIC_;
   llvm::CodeModel::Model CM = llvm::CodeModel::Small;
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+  llvm::CodeGenOptLevel OL = llvm::CodeGenOptLevel::Default;
+#else
   llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default;
+#endif
 
-  llvm::TargetMachine *TM = targetObj->createTargetMachine(
-      tripleObj.getTriple(), "generic", "", opt,
-      std::optional<llvm::Reloc::Model>(RM),
-      std::optional<llvm::CodeModel::Model>(CM), OL);
+  #if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+    llvm::TargetMachine *TM = targetObj->createTargetMachine(
+        tripleObj, "generic", "", opt,
+        std::optional<llvm::Reloc::Model>(RM),
+        std::optional<llvm::CodeModel::Model>(CM), OL);
+  #else
+    llvm::TargetMachine *TM = targetObj->createTargetMachine(
+        triple, "generic", "", opt,
+        std::optional<llvm::Reloc::Model>(RM),
+        std::optional<llvm::CodeModel::Model>(CM), OL);
+  #endif
 
   if (!TM) {
     reportError("Could not create target machine.");
@@ -887,9 +910,14 @@ void Codegen::compileToObject(const std::string &filename) {
   }
 
   llvm::legacy::PassManager pm;
-  llvm::CodeGenFileType ft = llvm::CGFT_ObjectFile;
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+  llvm::CodeGenFileType ft = llvm::CodeGenFileType::ObjectFile;
 
   if (TM->addPassesToEmitFile(pm, dest, nullptr, ft)) {
+#else
+  // older LLVM used CGFT_ObjectFile
+  if (TM->addPassesToEmitFile(pm, dest, nullptr, llvm::CGFT_ObjectFile)) {
+#endif
     reportError("TargetMachine cannot emit object files.");
     return;
   }
