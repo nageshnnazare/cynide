@@ -861,13 +861,15 @@ void Codegen::compileToObject(const std::string &filename) {
 #include "llvm/Config/llvm-config.h"
 #endif
 
-#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+// LLVM 17 and older use StringRef for target triple
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 18
   _module->setTargetTriple(tripleObj);
 
   std::string err;
   const llvm::Target *targetObj =
       llvm::TargetRegistry::lookupTarget(tripleObj, err);
 #else
+  // LLVM 17 and older need string representation
   _module->setTargetTriple(triple);
 
   std::string err;
@@ -882,17 +884,19 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::TargetOptions opt;
   llvm::Reloc::Model RM = llvm::Reloc::PIC_;
   llvm::CodeModel::Model CM = llvm::CodeModel::Small;
-#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 18
   llvm::CodeGenOptLevel OL = llvm::CodeGenOptLevel::Default;
 #else
+  // LLVM 17 and older use CodeGenOpt::Level
   llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default;
 #endif
 
-#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 18
   llvm::TargetMachine *TM = targetObj->createTargetMachine(
       tripleObj, "generic", "", opt, std::optional<llvm::Reloc::Model>(RM),
       std::optional<llvm::CodeModel::Model>(CM), OL);
 #else
+  // LLVM 17 and older
   llvm::TargetMachine *TM = targetObj->createTargetMachine(
       triple, "generic", "", opt, std::optional<llvm::Reloc::Model>(RM),
       std::optional<llvm::CodeModel::Model>(CM), OL);
@@ -913,12 +917,12 @@ void Codegen::compileToObject(const std::string &filename) {
   }
 
   llvm::legacy::PassManager pm;
-#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 10
+#if defined(LLVM_VERSION_MAJOR) && LLVM_VERSION_MAJOR >= 18
   llvm::CodeGenFileType ft = llvm::CodeGenFileType::ObjectFile;
 
   if (TM->addPassesToEmitFile(pm, dest, nullptr, ft)) {
 #else
-  // older LLVM used CGFT_ObjectFile
+  // LLVM 17 and older used CGFT_ObjectFile
   if (TM->addPassesToEmitFile(pm, dest, nullptr, llvm::CGFT_ObjectFile)) {
 #endif
     reportError("TargetMachine cannot emit object files.");
