@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <sstream>
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/Config/llvm-config.h>
@@ -851,7 +850,7 @@ void Codegen::compileToObject(const std::string &filename) {
   llvm::InitializeNativeTargetAsmParser();
 
   std::string triple = llvm::sys::getDefaultTargetTriple();
-  llvm::Triple tripleObj(triple.c_str());
+  llvm::Triple tripleObj(triple);
 
   _module->setTargetTriple(tripleObj);
 
@@ -872,7 +871,13 @@ void Codegen::compileToObject(const std::string &filename) {
       tripleObj, "generic", "", opt, std::optional<llvm::Reloc::Model>(RM),
       std::optional<llvm::CodeModel::Model>(CM), OL);
 
+  if (!TM) {
+    reportError("Could not create target machine.");
+    return;
+  }
+
   _module->setDataLayout(TM->createDataLayout());
+
   std::error_code EC;
   llvm::raw_fd_ostream dest(filename, EC, llvm::sys::fs::OF_None);
   if (EC) {
